@@ -3,7 +3,7 @@ package uk.co.datadisk.ddportal.jwt;
 import static com.auth0.jwt.algorithms.Algorithm.HMAC512;
 
 import static java.util.Arrays.stream;
-import static uk.co.datadisk.ddportal.jwt.SecurityConstant.*;
+import static uk.co.datadisk.ddportal.constants.SecurityConstant.*;
 
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;

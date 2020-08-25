@@ -1,4 +1,4 @@
-package uk.co.datadisk.ddportal.jwt;
+package uk.co.datadisk.ddportal.constants;
 
 import org.springframework.security.config.http.SessionCreationPolicy;
 

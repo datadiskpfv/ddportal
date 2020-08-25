@@ -14,7 +14,7 @@ import java.io.OutputStream;
 
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-import static uk.co.datadisk.ddportal.jwt.SecurityConstant.ACCESS_DENIED_MESSAGE;
+import static uk.co.datadisk.ddportal.constants.SecurityConstant.ACCESS_DENIED_MESSAGE;
 
 @Component
 public class JWTAccessDeniedHandler implements AccessDeniedHandler {

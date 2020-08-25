@@ -18,8 +18,8 @@ import uk.co.datadisk.ddportal.jwt.filters.JWTAccessDeniedHandler;
 import uk.co.datadisk.ddportal.jwt.filters.JWTAuthenticationEntryPoint;
 import uk.co.datadisk.ddportal.jwt.filters.JWTAuthorizationFilter;
 
-import static uk.co.datadisk.ddportal.jwt.SecurityConstant.PUBLIC_URLS;
-import static uk.co.datadisk.ddportal.jwt.SecurityConstant.STATELESS;
+import static uk.co.datadisk.ddportal.constants.SecurityConstant.PUBLIC_URLS;
+import static uk.co.datadisk.ddportal.constants.SecurityConstant.STATELESS;
 
 @Configuration
 @EnableWebSecurity

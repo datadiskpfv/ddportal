@@ -16,8 +16,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 
-import static uk.co.datadisk.ddportal.jwt.SecurityConstant.OPTIONS_HTTP_METHOD;
-import static uk.co.datadisk.ddportal.jwt.SecurityConstant.TOKEN_PREFIX;
+import static uk.co.datadisk.ddportal.constants.SecurityConstant.OPTIONS_HTTP_METHOD;
+import static uk.co.datadisk.ddportal.constants.SecurityConstant.TOKEN_PREFIX;
 
 @Component
 public class JWTAuthorizationFilter extends OncePerRequestFilter {
