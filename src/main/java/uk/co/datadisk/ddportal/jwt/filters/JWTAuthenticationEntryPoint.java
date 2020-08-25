@@ -3,6 +3,7 @@ package uk.co.datadisk.ddportal.jwt.filters;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.Http403ForbiddenEntryPoint;
+import org.springframework.stereotype.Component;
 import uk.co.datadisk.ddportal.domain.HttpResponse;
 
 import javax.servlet.http.HttpServletRequest;
@@ -14,6 +15,7 @@ import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static uk.co.datadisk.ddportal.jwt.SecurityConstant.FORBIDDEN_MESSAGE;
 
+@Component
 public class JWTAuthenticationEntryPoint extends Http403ForbiddenEntryPoint {
 
     @Override
