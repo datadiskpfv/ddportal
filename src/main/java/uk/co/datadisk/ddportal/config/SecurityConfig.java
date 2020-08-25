@@ -10,14 +10,16 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.config.http.SessionCreationPolicy;
+
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import uk.co.datadisk.ddportal.jwt.SecurityConstant;
 import uk.co.datadisk.ddportal.jwt.filters.JWTAccessDeniedHandler;
 import uk.co.datadisk.ddportal.jwt.filters.JWTAuthenticationEntryPoint;
 import uk.co.datadisk.ddportal.jwt.filters.JWTAuthorizationFilter;
+
+import static uk.co.datadisk.ddportal.jwt.SecurityConstant.PUBLIC_URLS;
+import static uk.co.datadisk.ddportal.jwt.SecurityConstant.STATELESS;
 
 @Configuration
 @EnableWebSecurity
@@ -54,9 +56,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .csrf().disable()
                 .cors()
                 .and()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .sessionManagement().sessionCreationPolicy(STATELESS)
                 .and()
-                .authorizeRequests().antMatchers(SecurityConstant.PUBLIC_URLS).permitAll()
+                .authorizeRequests().antMatchers(PUBLIC_URLS).permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .exceptionHandling().accessDeniedHandler(jwtAccessDeniedHandler)
