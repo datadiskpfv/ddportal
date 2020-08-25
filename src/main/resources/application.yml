@@ -1,5 +1,9 @@
 server:
   port: 8080
+# this will stop sending the default 404 error page, servlet will send a 404 page instead
+#  error:
+#    whitelabel:
+#      enabled: false
 
 spring:
   datasource:
@@ -13,6 +17,14 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQL5InnoDBDialect
+
+
+#  mvc:
+    # override default throw exception if no controller handler can be found
+#    throw-exception-if-no-handler-found: true
+#  resources:
+    # used with above this states not to register any non-existent URL's
+#    add-mappings: false
 
 jwt:
   secret: 'ReallySecretKey'
