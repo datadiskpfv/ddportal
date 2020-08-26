@@ -5,6 +5,7 @@ import org.springframework.context.event.EventListener;
 import org.springframework.security.authentication.event.AuthenticationSuccessEvent;
 import org.springframework.stereotype.Component;
 import uk.co.datadisk.ddportal.domain.User;
+import uk.co.datadisk.ddportal.domain.UserPrincipal;
 import uk.co.datadisk.ddportal.services.LoginAttemptService;
 
 import java.util.concurrent.ExecutionException;
@@ -23,8 +24,8 @@ public class AuthenticationSuccessListener {
     public void onAuthenticationSuccess(AuthenticationSuccessEvent event) {
         Object principal = event.getAuthentication().getPrincipal();
 
-        if(principal instanceof User) {
-            User user = (User) event.getAuthentication().getPrincipal();
+        if(principal instanceof UserPrincipal) {
+            UserPrincipal user = (UserPrincipal) event.getAuthentication().getPrincipal();
             loginAttemptService.evictUserFromLoginAttemptCache(user.getUsername());
         }
     }

@@ -3,6 +3,8 @@ package uk.co.datadisk.ddportal.services;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.concurrent.ExecutionException;
@@ -11,6 +13,8 @@ import static java.util.concurrent.TimeUnit.MINUTES;
 
 @Service
 public class LoginAttemptService {
+
+    Logger logger = LoggerFactory.getLogger(getClass());
 
     private static final int MAXIMUM_NUMBER_OF_ATTEMPTS = 5;
     private static final int ATTEMPT_INCREMENT = 1;
@@ -46,6 +50,7 @@ public class LoginAttemptService {
             e.printStackTrace();
         }
 
+        logger.info("Login Attempts for username: " + username + " Attempts: " + attempts);
         loginAttemptCache.put(username, attempts);
     }
 
