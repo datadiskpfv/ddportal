@@ -18,10 +18,12 @@ import uk.co.datadisk.ddportal.domain.UserPrincipal;
 import uk.co.datadisk.ddportal.exceptions.domain.EmailExistException;
 import uk.co.datadisk.ddportal.exceptions.domain.UsernameExistException;
 import uk.co.datadisk.ddportal.repositories.UserRepository;
+import uk.co.datadisk.ddportal.services.LoginAttemptService;
 import uk.co.datadisk.ddportal.services.UserService;
 
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static uk.co.datadisk.ddportal.constants.UserImplConstant.*;
@@ -32,17 +34,16 @@ import static uk.co.datadisk.ddportal.enumerations.Role.ROLE_USER;
 @Qualifier("userDetailsService")
 public class UserServiceImpl implements UserService, UserDetailsService {
 
-
     private UserRepository userRepository;
     private BCryptPasswordEncoder passwordEncoder;
     private Logger LOGGER = LoggerFactory.getLogger(getClass());
-
-
+    private LoginAttemptService loginAttemptService;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder) {
+    public UserServiceImpl(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder, LoginAttemptService loginAttemptService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.loginAttemptService = loginAttemptService;
     }
 
     @Override
@@ -54,6 +55,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             LOGGER.error(USER_NOT_FOUND_BY_USERNAME + username);
             throw new UsernameNotFoundException(USER_NOT_FOUND_BY_USERNAME + username);
         } else {
+
+            validateLoginAttempt(user);
+
             // update login dates and save user in db
             user.setLastLoginDateDisplay(user.getLastLoginDate());
             user.setLastLoginDate(new Date());
@@ -64,6 +68,18 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             LOGGER.info(RETURNING_FOUND_USER_BY_USERNAME + username);
 
             return userPrincipal;
+        }
+    }
+
+    private void validateLoginAttempt(User user) {
+        if(user.isNotLocked()) {
+            if(loginAttemptService.hasExceededMaxAttempts(user.getUsername())) {
+                user.setNotLocked(false);
+            } else {
+                user.setNotLocked(true);
+            }
+        } else {
+            loginAttemptService.evictUserFromLoginAttemptCache(user.getUsername());
         }
     }
 
