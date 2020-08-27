@@ -18,9 +18,11 @@ import uk.co.datadisk.ddportal.domain.UserPrincipal;
 import uk.co.datadisk.ddportal.exceptions.domain.EmailExistException;
 import uk.co.datadisk.ddportal.exceptions.domain.UsernameExistException;
 import uk.co.datadisk.ddportal.repositories.UserRepository;
+import uk.co.datadisk.ddportal.services.EmailService;
 import uk.co.datadisk.ddportal.services.LoginAttemptService;
 import uk.co.datadisk.ddportal.services.UserService;
 
+import javax.mail.MessagingException;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -38,12 +40,14 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     private BCryptPasswordEncoder passwordEncoder;
     private Logger LOGGER = LoggerFactory.getLogger(getClass());
     private LoginAttemptService loginAttemptService;
+    private EmailService emailService;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder, LoginAttemptService loginAttemptService) {
+    public UserServiceImpl(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder, LoginAttemptService loginAttemptService, EmailService emailService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.loginAttemptService = loginAttemptService;
+        this.emailService = emailService;
     }
 
     @Override
@@ -107,7 +111,12 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
         userRepository.save(user);
 
-        LOGGER.info("Username: " + username + "  Password: " + password);
+        try {
+            LOGGER.info("Sending email to Username: " + username + "  Password: " + password);
+            emailService.sendNewPasswordEmail(firstName, password, email);
+        } catch (MessagingException e) {
+            e.printStackTrace();
+        }
 
         return user;
     }
