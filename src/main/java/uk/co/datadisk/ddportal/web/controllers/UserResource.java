@@ -20,8 +20,10 @@ import uk.co.datadisk.ddportal.jwt.JWTTokenProvider;
 import uk.co.datadisk.ddportal.services.UserService;
 
 import javax.mail.MessagingException;
-import javax.websocket.server.PathParam;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
@@ -29,8 +31,7 @@ import java.util.List;
 import static org.springframework.http.HttpStatus.NO_CONTENT;
 import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.MediaType.IMAGE_JPEG_VALUE;
-import static uk.co.datadisk.ddportal.constants.FileConstant.FORWARD_SLASH;
-import static uk.co.datadisk.ddportal.constants.FileConstant.USER_FOLDER;
+import static uk.co.datadisk.ddportal.constants.FileConstant.*;
 import static uk.co.datadisk.ddportal.constants.SecurityConstant.JWT_TOKEN_HEADER;
 
 @RestController
@@ -148,6 +149,23 @@ public class UserResource extends GlobalExceptionHandler {
     public byte[] getProfileImage(@PathVariable("username") String username,
                                   @PathVariable("fileName") String fileName) throws IOException {
         return Files.readAllBytes(Paths.get(USER_FOLDER + username + FORWARD_SLASH + fileName));
+    }
+
+    @GetMapping(path = "/image/profile/{username}", produces = IMAGE_JPEG_VALUE)
+    public byte[] getTempProfileImage(@PathVariable("username") String username) throws IOException {
+        URL url = new URL(TEMP_PROFILE_IMAGE_BASE_URL + username);
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+
+        // try with resource block
+        try(InputStream inputStream = url.openStream()) {
+            int bytesRead;
+            byte[] chunk = new byte[1024];
+
+            while((bytesRead = inputStream.read(chunk)) > 0) {
+                byteArrayOutputStream.write(chunk, 0, bytesRead);
+            }
+            return byteArrayOutputStream.toByteArray();
+        }
     }
 
     private ResponseEntity<HttpResponse> response(HttpStatus httpStatus, String message) {

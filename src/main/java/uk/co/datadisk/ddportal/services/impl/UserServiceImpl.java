@@ -19,6 +19,7 @@ import uk.co.datadisk.ddportal.domain.UserPrincipal;
 import uk.co.datadisk.ddportal.enumerations.Role;
 import uk.co.datadisk.ddportal.exceptions.domain.EmailExistException;
 import uk.co.datadisk.ddportal.exceptions.domain.EmailNotFoundException;
+import uk.co.datadisk.ddportal.exceptions.domain.NotAnImageFileException;
 import uk.co.datadisk.ddportal.exceptions.domain.UsernameExistException;
 import uk.co.datadisk.ddportal.repositories.UserRepository;
 import uk.co.datadisk.ddportal.services.EmailService;
@@ -30,6 +31,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -174,14 +176,15 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
         User user = new User();
         String password = generatePassword();
+        user.setUserId(generateUserId());
         user.setFirstName(firstName);
         user.setLastName(lastName);
         user.setUsername(username);
         user.setEmail(email);
         user.setJoinDate(new Date());
         user.setPassword(encodePassword(password));
-        user.setActive(true);
-        user.setNotLocked(true);
+        user.setActive(isActive);
+        user.setNotLocked(isNonLocked);
         user.setRole(getRoleEnumName(role).name());
         user.setAuthorities(getRoleEnumName(role).getAuthorities());
         user.setProfileImageUrl(getTemporaryProfileImageUrl(username));
@@ -266,28 +269,26 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     private void saveProfileImage(User user, MultipartFile profileImage) throws IOException {
-        if(profileImage != null) {
+        if (profileImage != null) {
             Path userFolder = Paths.get(USER_FOLDER + user.getUsername()).toAbsolutePath().normalize();
-
             if(!Files.exists(userFolder)) {
                 Files.createDirectories(userFolder);
                 LOGGER.info(DIRECTORY_CREATED + userFolder);
             }
-            String fullPathImage = userFolder + user.getUsername() + DOT + JPG_EXTENSION;
-            Files.deleteIfExists(Paths.get(userFolder + fullPathImage));
-            Files.copy(profileImage.getInputStream(), userFolder.resolve(fullPathImage), REPLACE_EXISTING);
-            user.setProfileImageUrl(setProfileImageURL(user.getUsername()));
-            LOGGER.info(FILE_SAVED_IN_FILE_SYSTEM + fullPathImage);
+            Files.deleteIfExists(Paths.get(userFolder + user.getUsername() + DOT + JPG_EXTENSION));
+            Files.copy(profileImage.getInputStream(), userFolder.resolve(user.getUsername() + DOT + JPG_EXTENSION), REPLACE_EXISTING);
+            user.setProfileImageUrl(setProfileImageUrl(user.getUsername()));
             userRepository.save(user);
+            LOGGER.info(FILE_SAVED_IN_FILE_SYSTEM + profileImage.getOriginalFilename());
         }
     }
 
-    private String setProfileImageURL(String username) {
-        return ServletUriComponentsBuilder.fromCurrentContextPath().path(USER_IMAGE_PATH + username +
-                FORWARD_SLASH + username + DOT + JPG_EXTENSION).toUriString();
+    private String setProfileImageUrl(String username) {
+        return ServletUriComponentsBuilder.fromCurrentContextPath().path(USER_IMAGE_PATH + username + FORWARD_SLASH
+                + username + DOT + JPG_EXTENSION).toUriString();
     }
 
     private Role getRoleEnumName(String role) {
-        return Role.valueOf(role.toLowerCase());
+        return Role.valueOf(role.toUpperCase());
     }
 }
