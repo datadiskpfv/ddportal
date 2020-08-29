@@ -230,6 +230,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         user.setPassword(encodePassword(password));
         userRepository.save(user);
 
+        LOGGER.info("Sending email to Username: " + email + "  Password: " + password);
+
         emailService.sendNewPasswordEmail(user.getFirstName(), password, user.getEmail());
     }
 

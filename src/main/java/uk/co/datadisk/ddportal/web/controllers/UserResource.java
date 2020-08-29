@@ -94,7 +94,7 @@ public class UserResource extends GlobalExceptionHandler {
     }
 
     @PostMapping("/update")
-    public ResponseEntity<User> updateUser(@RequestParam("currentUser") String currentUser,
+    public ResponseEntity<User> updateUser(@RequestParam("currentUsername") String currentUsername,
                                         @RequestParam("firstName") String firstName,
                                         @RequestParam("lastName") String lastName,
                                         @RequestParam("username") String username,
@@ -105,7 +105,7 @@ public class UserResource extends GlobalExceptionHandler {
                                         @RequestParam( value = "profileImage", required = false) MultipartFile profileImage)
             throws UsernameExistException, EmailExistException, IOException {
 
-        User updatedUser = userService.updateUser(currentUser, firstName, lastName, username, email,
+        User updatedUser = userService.updateUser(currentUsername, firstName, lastName, username, email,
                 role, Boolean.parseBoolean(isActive), Boolean.parseBoolean(isNonLocked), profileImage);
 
         return new ResponseEntity<>(updatedUser, OK);
@@ -123,6 +123,10 @@ public class UserResource extends GlobalExceptionHandler {
     @GetMapping("/find/{username}")
     public ResponseEntity<User> findUser(@PathVariable("username") String username) {
         User user = userService.findUserByUsername(username);
+
+        if (user == null) {
+            return new ResponseEntity<>(null, NO_CONTENT);
+        }
         return new ResponseEntity<>(user, OK);
     }
 
@@ -132,7 +136,7 @@ public class UserResource extends GlobalExceptionHandler {
         return new ResponseEntity<>(users, OK);
     }
 
-    @GetMapping("/resetPassword/{email}")
+    @GetMapping("/reset-password/{email}")
     public ResponseEntity<HttpResponse> getAllUsers(@PathVariable("email") String email) throws EmailNotFoundException, MessagingException {
         userService.resetPassword(email);
         return response(OK, EMAIL_SENT + email);
