@@ -14,13 +14,9 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
 import uk.co.datadisk.ddportal.jwt.filters.JWTAccessDeniedHandler;
 import uk.co.datadisk.ddportal.jwt.filters.JWTAuthenticationEntryPoint;
 import uk.co.datadisk.ddportal.jwt.filters.JWTAuthorizationFilter;
-
-import java.util.List;
 
 import static uk.co.datadisk.ddportal.constants.SecurityConstant.PUBLIC_URLS;
 import static uk.co.datadisk.ddportal.constants.SecurityConstant.STATELESS;

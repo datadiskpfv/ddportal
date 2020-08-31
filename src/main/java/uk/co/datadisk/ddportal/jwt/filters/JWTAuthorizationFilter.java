@@ -41,6 +41,7 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
 
             // if header is null or does not start with Bearer, move on
             if(authorizationHeader == null || !authorizationHeader.startsWith(TOKEN_PREFIX)) {
+                System.out.println("No JWT sent with request");
                 chain.doFilter(request, response);
                 return;
             }
@@ -57,6 +58,7 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
                 Authentication authentication = jwtTokenProvider.getAuthentication(username, authorities, request);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             } else {
+                System.out.println("JWT is invalid for username " + username);
                 SecurityContextHolder.clearContext();
             }
         }

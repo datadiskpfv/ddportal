@@ -15,6 +15,7 @@ import uk.co.datadisk.ddportal.domain.UserPrincipal;
 import uk.co.datadisk.ddportal.exceptions.GlobalExceptionHandler;
 import uk.co.datadisk.ddportal.exceptions.domain.EmailExistException;
 import uk.co.datadisk.ddportal.exceptions.domain.EmailNotFoundException;
+import uk.co.datadisk.ddportal.exceptions.domain.NotAnImageFileException;
 import uk.co.datadisk.ddportal.exceptions.domain.UsernameExistException;
 import uk.co.datadisk.ddportal.jwt.JWTTokenProvider;
 import uk.co.datadisk.ddportal.services.UserService;
@@ -71,7 +72,7 @@ public class UserResource extends GlobalExceptionHandler {
         User loginUser = userService.findUserByUsername(user.getUsername());
         UserPrincipal userPrincipal = new UserPrincipal(loginUser);
 
-        HttpHeaders jwtHeader = getJwtHeader(userPrincipal);
+        HttpHeaders jwtHeader = createJwtHeader(userPrincipal);
 
         return new ResponseEntity<>(loginUser, jwtHeader, OK);
     }
@@ -85,7 +86,7 @@ public class UserResource extends GlobalExceptionHandler {
                                         @RequestParam("isActive") String isActive,
                                         @RequestParam("isNonLocked") String isNonLocked,
                                         @RequestParam( value = "profileImage", required = false) MultipartFile profileImage)
-            throws UsernameExistException, EmailExistException, IOException {
+            throws UsernameExistException, EmailExistException, IOException, NotAnImageFileException {
 
         User newUser = userService.addNewUser(firstName, lastName, username, email,
                 role, Boolean.parseBoolean(isActive), Boolean.parseBoolean(isNonLocked), profileImage);
@@ -103,7 +104,7 @@ public class UserResource extends GlobalExceptionHandler {
                                         @RequestParam("isActive") String isActive,
                                         @RequestParam("isNonLocked") String isNonLocked,
                                         @RequestParam( value = "profileImage", required = false) MultipartFile profileImage)
-            throws UsernameExistException, EmailExistException, IOException {
+            throws UsernameExistException, EmailExistException, IOException, NotAnImageFileException {
 
         User updatedUser = userService.updateUser(currentUsername, firstName, lastName, username, email,
                 role, Boolean.parseBoolean(isActive), Boolean.parseBoolean(isNonLocked), profileImage);
@@ -114,7 +115,7 @@ public class UserResource extends GlobalExceptionHandler {
     @PostMapping("/updateProfileImage")
     public ResponseEntity<User> updateProfileImage(@RequestParam("username") String username,
                                            @RequestParam( value = "profileImage") MultipartFile profileImage)
-            throws UsernameExistException, EmailExistException, IOException {
+            throws UsernameExistException, EmailExistException, IOException, NotAnImageFileException {
 
         User user = userService.updateProfileImage(username,profileImage);
         return new ResponseEntity<>(user, OK);
@@ -138,15 +139,16 @@ public class UserResource extends GlobalExceptionHandler {
 
     @GetMapping("/reset-password/{email}")
     public ResponseEntity<HttpResponse> getAllUsers(@PathVariable("email") String email) throws EmailNotFoundException, MessagingException {
+        System.out.println("Resetting password for " + email);
         userService.resetPassword(email);
         return response(OK, EMAIL_SENT + email);
     }
 
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/delete/{username}")
     @PreAuthorize("hasAnyAuthority('user:delete')")
-    public ResponseEntity<HttpResponse> deleteUser(@PathVariable("id") Long id) {
-        userService.deleteUser(id);
-        return response(NO_CONTENT, USER_DELETED_SUCCESSFULLY);
+    public ResponseEntity<HttpResponse> deleteUser(@PathVariable("username") String username) throws IOException {
+        userService.deleteUser(username);
+        return response(OK, USER_DELETED_SUCCESSFULLY);
     }
 
     @GetMapping(path = "/image/{username}/{fileName}", produces = IMAGE_JPEG_VALUE)
@@ -177,10 +179,9 @@ public class UserResource extends GlobalExceptionHandler {
                 httpStatus.getReasonPhrase().toUpperCase(), message), httpStatus);
     }
 
-    private HttpHeaders getJwtHeader(UserPrincipal userPrincipal) {
+    private HttpHeaders createJwtHeader(UserPrincipal userPrincipal) {
         HttpHeaders headers = new HttpHeaders();
         headers.add(JWT_TOKEN_HEADER, jwtTokenProvider.generateJwtToken(userPrincipal));
-
         return headers;
     }
 

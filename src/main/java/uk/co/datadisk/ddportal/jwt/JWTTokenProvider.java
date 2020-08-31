@@ -33,6 +33,7 @@ public class JWTTokenProvider {
     private String secret;
 
     public String generateJwtToken(UserPrincipal userPrincipal) {
+        // claims are the users authorities
         String[] claims = getClaimsFromUser(userPrincipal);
 
         return JWT.create()
